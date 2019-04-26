@@ -33,7 +33,8 @@ identifier = lexeme $
 
 operations :: [[Operator Parser Expr]]
 operations =
-  [ [op "*" EMul]
+  [ [op "" EApp]
+  , [op "*" EMul]
   , [op "+" EAdd, op "-" ESub]
   ] where op n f = InfixL (f <$ symbol n)
 
@@ -51,5 +52,11 @@ expr = makeExprParser term operations
 stmt :: Parser Stmt
 stmt = Def <$> (identifier <* symbol "=") <*> expr
 
-program :: Parser [Stmt]
+program :: Parser Program
 program = between sc eof $ stmt `sepEndBy` some eol
+
+parseProgram :: String -> Either (ParseErrorBundle String Void) Program
+parseProgram = parse program mempty
+
+parseExpr :: String -> Either (ParseErrorBundle String Void) Expr
+parseExpr = parse expr mempty
